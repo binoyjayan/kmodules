@@ -1,0 +1,97 @@
+
+==================================================================================
+ Character device driver using a binary semaphore to sychronize access
+==================================================================================
+
+----------------------------------------------------------------------------------
+  Installing/Unistalling driver, creating nodes
+----------------------------------------------------------------------------------
+
+Note: The device numbers can be obtained from 'dmesg'
+
+$ make
+$ make install
+$ sudo mknod /dev/mymemdev c 250 1
+$ sudo mknod /dev/mymemdev c 250 2
+$ sudo chmod a+w /dev/mymemdev 
+$ make remove
+
+----------------------------------------------------------------------------------
+ Testing driver with echo, cat and test program 'test.c' 
+----------------------------------------------------------------------------------
+
+binoy@MCAFEE:~/src/linux/modules/sem$ echo hello > /dev/mymemdev1 
+binoy@MCAFEE:~/src/linux/modules/sem$ echo world > /dev/mymemdev2
+binoy@MCAFEE:~/src/linux/modules/sem$ 
+binoy@MCAFEE:~/src/linux/modules/sem$ cat /dev/mymemdev1 /dev/mymemdev2
+hello
+world
+binoy@MCAFEE:~/src/linux/modules/sem$ ll /dev/mymemdev*
+crw-rw-rw- 1 root root 250, 1 Sep 24 11:30 /dev/mymemdev1
+crw-rw-rw- 1 root root 250, 2 Sep 24 11:30 /dev/mymemdev2
+binoy@MCAFEE:~/src/linux/modules/sem$ 
+binoy@MCAFEE:~/src/linux/modules/sem$ ./a.out 
+
+Utility to test character device driver wait on semaphore operation upon read
+
+Usage ./a.out <device_file>
+
+Examples:
+
+./a.out /dev/mydemdev1
+./a.out /dev/mydemdev2
+
+Note: The device file name must be created before running this program.
+      The device number can be obtained from dmesg
+
+binoy@MCAFEE:~/src/linux/modules/sem$ ./a.out /dev/mymemdev1 
+Requesting 4096 bytes of data
+Obtained 6 bytes of data
+
+<<-----Data---->>
+hello
+
+<<-----End of Data---->>
+Press enter to continue to close the file
+
+binoy@MCAFEE:~/src/linux/modules/sem$ ./a.out /dev/mymemdev2
+Requesting 4096 bytes of data
+Obtained 6 bytes of data
+
+<<-----Data---->>
+world
+
+<<-----End of Data---->>
+Press enter to continue to close the file
+
+
+==================================================================================
+  dmesg:
+==================================================================================
+
+[ 8043.222544] mymemdev:Assigned device number : (250, 1)
+[ 8043.222548] mymemdev:Create device(s) with  :
+[ 8043.222550]          sudo mknod /dev/mymemdev1 c 250 1
+[ 8043.222552]          sudo chmod a+w /dev/mymemdev1
+[ 8043.222554]          sudo mknod /dev/mymemdev2 c 250 2
+[ 8043.222556]          sudo chmod a+w /dev/mymemdev2
+[ 8043.222557] -----------------------------------------------------------
+[ 8055.114780] mymemdev:write:written 6 bytes. New file pos:6
+[ 8060.998331] mymemdev:write:written 6 bytes. New file pos:6
+[ 8076.822805] mymemdev:read:returning 6 bytes
+[ 8076.822823] mymemdev:read:requested 65536 bytes. File position 6
+[ 8076.822835] mymemdev:read:returning 6 bytes
+[ 8076.822840] mymemdev:read:requested 65536 bytes. File position 6
+[ 8104.433936] mymemdev:read:returning 6 bytes
+[ 8106.517836] mymemdev:read:returning 6 bytes
+[ 8134.395868] mymemdev:Unregistered memory character device.
+
+
+
+
+
+
+
+
+
+

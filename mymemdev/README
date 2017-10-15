@@ -1,0 +1,67 @@
+
+==================================================================================
+  Run Commands :
+==================================================================================
+
+$ make
+$ make install
+$ sudo mknod /dev/mymemdev c 251 1
+$ sudo chmod a+w /dev/mymemdev 
+$ cat /dev/mymemdev 
+$ cp Makefile /dev/mymemdev 
+$ cat /dev/mymemdev
+$ make remove
+
+----------------------------------------------------------------------------------
+ Device contents displayed with cat command:
+----------------------------------------------------------------------------------
+obj-m += mymemdev.o 
+
+all:
+	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+
+clean:
+	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+
+install:
+	sudo insmod mymemdev.ko
+
+remove: 
+	sudo rmmod mymemdev.ko
+
+info:
+	modinfo mymemdev.ko 
+
+----------------------------------------------------------------------------------
+Size of the Makefile. 
+This is same as that of the position in device file
+Refer dmesg below
+----------------------------------------------------------------------------------
+$ wc -c Makefile 
+259 Makefile
+
+==================================================================================
+  dmesg:
+==================================================================================
+
+[  307.025635] mymemdev: A Simple memory Character Device Driver
+[  307.025639] -----------------------------------------------------------
+[  307.025643] mymemdev:Assigned device number : (251, 1)
+[  307.025644] mymemdev:Create a device with   :
+[  307.025645]          sudo mknod /dev/mymemdev c 251 1
+[  307.025646]          sudo chmod a+w /dev/mymemdev
+[  307.025647] -----------------------------------------------------------
+[  327.102357] mymemdev:read:requested 65536 bytes. File position 0
+[  404.004910] mymemdev:write:written 259 bytes. New file pos:259
+[  413.878367] mymemdev:read:returning 259 bytes
+[  413.878394] mymemdev:read:requested 65536 bytes. File position 259
+[ 1071.852065] mymemdev:Unregistered memory device
+[ 1071.852070] mymemdev:Unregistered memory character device.
+
+
+
+
+
+
+
+

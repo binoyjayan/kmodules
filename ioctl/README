@@ -1,0 +1,116 @@
+
+==================================================================================
+ Testing
+==================================================================================
+
+$ make
+$ make install
+$ sudo mknod /dev/mymemdev c 251 1
+$ sudo chmod a+w /dev/mymemdev 
+$ sudo mknod /dev/mymemdev c 251 1 ; sudo chmod a+w /dev/mymemdev 
+$ echo hello > /dev/mymemdev 
+$ cat /dev/mymemdev 
+hello
+
+------------------------------------------------------------------------
+ Running user space program
+------------------------------------------------------------------------
+$ ./a.out 
+
+Utility to control memory character device operations
+
+Usage ./a.out <device_file> <operation> [value]
+
+Operations:
+
+0 : Reset    device size. No argument.
+1 : Set      device size. Needs argument
+2 : Get      device size. No argument
+3 : Tell     device size. Needs argument
+4 : Query    device size. No argument
+5 : eXchange device size. Needs argument (Get + Set)
+6 : sHift    device size. Needs argument (Tell + Query)
+
+Examples:
+
+     ./a.out /dev/mymemdev1 0
+sudo ./a.out /dev/mymemdev1 1 512
+     ./a.out /dev/mymemdev1 2
+sudo ./a.out /dev/mymemdev1 3 512
+     ./a.out /dev/mymemdev1 4
+sudo ./a.out /dev/mymemdev1 5 256
+sudo ./a.out /dev/mymemdev1 6 128
+
+$ ./a.out /dev/mymemdev1 1 512 
+/dev/mymemdev1: Operation not permitted        <<-- Requires Capability 'CAP_SYS_ADMIN'
+$ sudo ./a.out /dev/mymemdev1 1 512 
+$ ./a.out /dev/mymemdev1 2
+Device size = 512
+$ ./a.out /dev/mymemdev1 0 
+$ ./a.out /dev/mymemdev1 4
+Device size = 10485760
+$ echo 10485760 / 1024 /1024 | bc 
+10
+$ sudo ./a.out /dev/mymemdev1 5 256
+$ ./a.out /dev/mymemdev1 4
+Device size = 256
+$ 
+$ ./a.out /dev/mymemdev1 0 
+$ sudo ./a.out /dev/mymemdev1 5 256 
+Old device size = 10485760
+$ 
+$ sudo ./a.out /dev/mymemdev1 6 128 
+Old device size = 256
+$ 
+$ make remove 
+sudo rmmod mymemdev.ko
+
+==================================================================================
+  dmesg:
+==================================================================================
+
+[ 1465.041279] mymemdev:A Simple memory Character Device Driver
+[ 1465.041284] -----------------------------------------------------------
+[ 1465.043447] mymemdev:Assigned device number : (251, 1)
+[ 1465.043451] mymemdev:Create device(s) with  :
+[ 1465.043453]          sudo mknod /dev/mymemdev1 c 251 1
+[ 1465.043455]          sudo chmod a+w /dev/mymemdev1
+[ 1465.043457] -----------------------------------------------------------
+[ 1480.484535] mymemdev:write:written 6 bytes. New file pos:6
+[ 1483.933662] mymemdev:read:returning 6 bytes
+[ 1483.933696] mymemdev:read:requested 65536 bytes. File position 6
+[ 1571.580555] mymemdev:ioctl:Command : 1074034945 (0x40047901)
+[ 1571.580560] mymemdev:ioctl:Command validated : 1074034945 (0x40047901)
+[ 1571.580562] mymemdev:ioctl:Command MYMEMDEV_IOCSMAXSIZE
+[ 1576.087530] mymemdev:ioctl:Command : 1074034945 (0x40047901)
+[ 1576.087535] mymemdev:ioctl:Command validated : 1074034945 (0x40047901)
+[ 1576.087537] mymemdev:ioctl:Command MYMEMDEV_IOCSMAXSIZE
+[ 1583.275356] mymemdev:ioctl:Command : 2147776770 (0x80047902)
+[ 1583.275362] mymemdev:ioctl:Command validated : 2147776770 (0x80047902)
+[ 1583.275364] mymemdev:ioctl:Command MYMEMDEV_IOCGMAXSIZE
+[ 1588.103482] mymemdev:ioctl:Command : 30976 (0x7900)
+[ 1588.103486] mymemdev:ioctl:Command validated : 30976 (0x7900)
+[ 1588.103488] mymemdev:ioctl:Command MYMEMDEV_IOCRESET
+[ 1594.345023] mymemdev:ioctl:Command : 30980 (0x7904)
+[ 1594.345027] mymemdev:ioctl:Command validated : 30980 (0x7904)
+[ 1594.345030] mymemdev:ioctl:Command MYMEMDEV_IOCQMAXSIZE
+[ 2321.178669] mymemdev:ioctl:Command : 30976 (0x7900)
+[ 2321.178674] mymemdev:ioctl:Command validated : 30976 (0x7900)
+[ 2321.178675] mymemdev:ioctl:Command MYMEMDEV_IOCRESET
+[ 2349.329382] mymemdev:ioctl:Command : 3221518597 (0xC0047905)
+[ 2349.329388] mymemdev:ioctl:Command validated : 3221518597 (0xC0047905)
+[ 2349.329390] mymemdev:ioctl:Command MYMEMDEV_IOCXMAXSIZE
+[ 2378.944662] mymemdev:ioctl:Command : 30982 (0x7906)
+[ 2378.944667] mymemdev:ioctl:Command validated : 30982 (0x7906)
+[ 2378.944669] mymemdev:ioctl:Command MYMEMDEV_IOCHMAXSIZE
+[ 2430.346701] mymemdev:Unregistered memory character device.
+
+
+
+
+
+
+
+
+
+
